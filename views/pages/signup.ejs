@@ -1,0 +1,45 @@
+<!-- views/pages/signup.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="container">
+
+          <div class="jumbotron">
+            <h1>Sign Up for your Braintree Account</h1>
+            <p class="lead">Enter your desired merchant ID below:</p>
+                <hr class="featurette-divider"></hr></div>
+                <form accept-charset="UTF-8" action="/goBT" method="post"><div style="margin:0;padding:0;display:inline"></div>
+                    <div class='form-row'>
+                      <div class='col-xs-12 form-group required'>
+                        <label class='control-label'>Merchant ID:</label>
+                        <input class='form-control' size='4' type='text'>
+                      </div>
+                    </div>
+                    <div class='form-row'>
+                        <div class='col-md-12 form-group'>
+                            <hr class="featurette-divider"></hr>
+                            <button class='form-control btn btn-primary submit-button' type='submit'> Submit</button>
+                        </div>
+                    </div>
+              </div>
+          </div>
+
+        </div><!-- /.container -->
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

@@ -56,15 +56,15 @@ app.set('view engine', 'ejs');
 
 //index page
 app.get('/', function(req, res) {
-  var tagline = "Here is the client token";
+  var tagline = "Welcome";
   res.render('pages/index', {
-    tagline: clientToken
+    tagline: tagline
   });
 });
 
 // about page 
-app.get('/about', function(req, res) {
-    res.render('pages/about');
+app.get('/signup', function(req, res) {
+    res.render('pages/signup');
 });
 
 // test page 
@@ -112,9 +112,9 @@ app.post('/credentials', function(req, res) {
   res.end();
 });
 
-app.get('/signup', function(req, res) {
-    res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + partner_merchant_id);
-});
+// app.get('/signup', function(req, res) {
+//     res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + partner_merchant_id);
+// });
 
 
 // Serve the Mobile iOS Client with the token generated above
