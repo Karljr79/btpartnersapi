@@ -21,7 +21,7 @@ own client token, but are necessary for you to instantiate a Braintree Gateway c
 3)If the user ID has not been used previously, you will then be taken to the Braintree Partners testing page.  To log in, use the following credentials: 
 
 `username: partner_testing_user`
-`/signup: demo_312`
+`password: demo_312`
 
 4)From the test dashboard, you can simulate events.  Currently this node app is only set up to process a successful application.
 
