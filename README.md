@@ -23,6 +23,8 @@ own client token, but are necessary for you to instantiate a Braintree Gateway c
 `username: partner_testing_user`
 `password: demo_312`
 
+Ideally you would get have your own credentials from Braintree that would your own BT Partner's Test Page.  The credentials above test page buttons will only post webhooks to my URL.
+
 4)From the test dashboard, you can simulate events.  Currently this node app is only set up to process a successful application.
 
 5)Press the `run test` button and Braintree will send a Webhook with the merchants credentials.  This app parses that webhook and stores the creds in the db using the merchant ID you entered in step 2
