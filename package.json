@@ -17,6 +17,6 @@
     "braintree": "*",
     "ejs": "*",
     "winston": "*",
-    "nstore": "*"
+    "nstore": "*",
   }
 }

@@ -59,7 +59,10 @@ app.get('/signup', function(req, res) {
 
 // test page 
 app.get('/complete', function(req, res) {
-    res.render('pages/complete');
+    res.render('pages/complete', {
+      id: req.param("partner_merchant_id"),
+      status: req.param("status")
+    });
 });
 
 // test page 
@@ -69,7 +72,10 @@ app.get('/cancel', function(req, res) {
 
 // test page 
 app.get('/error', function(req, res) {
-    res.render('pages/error');
+    res.render('pages/error', {
+      id: req.param("partner_merchant_id"),
+      message: req.param("message")
+    });
 });
 
 //used for one time Braintree test Webhook
