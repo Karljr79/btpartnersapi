@@ -16,24 +16,15 @@ var  clientToken, transid, expirationDate1, number1, paymenttoken;
 //for processing transactions on behalf of merchants
 var clientGateway;
 
-//set up logging
-//this will log to a file while also outputting to winston
-
-// //create BT gateway with Sandbox credentials
-// var gateway = braintree.connect({
-//   environment: braintree.Environment.Sandbox,
-//   merchantId: "pnw68ksp2qb7h39j", //orig
-//   publicKey: "tyyh5nmq3746bqhj", //orig sandbox
-//   privateKey: "9f094eabd9e0adffec2beaec8ca50142" //orig sandbox
-// });
+//finish setting up logging
+winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
 
 var partner_merchant_id = "abc37";
+
+//load db
 var merchants = nStore.new('data/merchants.db', function (){
   winston.log('info', 'Merchants Database Successfully loaded');
 });
-
-//finish setting up logging
-winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
 
 //create BT gateway with Sandbox Partner credentials
 //these are emailed from BT Solutions
@@ -53,15 +44,6 @@ app.use(bodyParser.urlencoded({
 //set the view engine to ejs
 app.set('view engine', 'ejs');
 
-//use res.render to load up an ejs view file
-
-// gateway.clientToken.generate({
-// }, function (err, response) {
-//     winston.log("Recieved Client Token");
-//     clientToken = response.clientToken;
-//     winston.log('Clientoken is '+clientToken);
-// });
-
 //index page
 app.get('/', function(req, res) {
   var tagline = "Welcome";
@@ -71,7 +53,8 @@ app.get('/', function(req, res) {
 });
 
 app.get('/signup', function(req, res) {
-    res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + partner_merchant_id);
+    //res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + partner_merchant_id);
+    res.render('pages/signup');
 });
 
 // test page 
@@ -106,13 +89,13 @@ app.post('/credentials', function(req, res) {
     req.body.bt_payload,
     function (err, webhookNotification) {
       if(webhookNotification.kind == "partner_merchant_connected") {
-        winston.log("New Credentials Received--------------------------------------");
-        winston.log("Webhook Received " + webhookNotification.timestamp + "] | Kind: " + webhookNotification.kind);
-        winston.log("Partner User ID: " + webhookNotification.partnerMerchant.partnerMerchantId);
-        winston.log("Merchant Public ID: " + webhookNotification.partnerMerchant.merchantPublicId);
-        winston.log("Public Key: " + webhookNotification.partnerMerchant.publicKey);
-        winston.log("Private Key: " + webhookNotification.partnerMerchant.privateKey);
-        winston.log("End-----------------------------------------------------------");
+        winston.log('info',"New Credentials Received--------------------------------------");
+        winston.log('info',"Webhook Received " + webhookNotification.timestamp + "] | Kind: " + webhookNotification.kind);
+        winston.log('info',"Partner User ID: " + webhookNotification.partnerMerchant.partnerMerchantId);
+        winston.log('info',"Merchant Public ID: " + webhookNotification.partnerMerchant.merchantPublicId);
+        winston.log('info',"Public Key: " + webhookNotification.partnerMerchant.publicKey);
+        winston.log('info',"Private Key: " + webhookNotification.partnerMerchant.privateKey);
+        winston.log('info',"End-----------------------------------------------------------");
         partnerMerchantId = webhookNotification.partnerMerchant.partnerMerchantId;
         merchantPublicId = webhookNotification.partnerMerchant.merchantPublicId;
         publicKey = webhookNotification.partnerMerchant.publicKey;
@@ -136,10 +119,51 @@ app.post('/credentials', function(req, res) {
   res.end();
 });
 
+//simulate a user logging in from a mobile app
+app.get("/login", function(req,res){
+    
+    var merchant_id = req.query.id;
+    
+    merchants.get(merchant_id, function(err, doc, key){
+      if(err){
+        winston.log('error', "Error retrieving record: " + key );
+      }
+      else{
+        //populate the client gateway
+        clientGateway = braintree.connect({
+        environment: braintree.Environment.Sandbox,
+        merchantId: doc.merchant_public_id,
+        publicKey: doc.public_key,
+        privateKey: doc.private_key
+        });
+      }
+    });
+    res.send(200);
+});
+
 // Serve the Mobile iOS Client with the token generated above
 app.get("/client_token", function (req, res) {
+    clientGateway.clientToken.generate({
+    }, function (err, response) {
+      if(err){
+        winston.log('error', "Could not get client token");
+      }
+      else {
+        winston.log('info', "Recieved Client Token");
+        clientToken = response.clientToken;
+        winston.log('info', 'Clientoken is '+ clientToken);
+      }
+    });
     res.send('{\"client_token\":\"'+clientToken+'\"}');
-    winston.log('Clientoken is '+clientToken);
+});
+
+//redirect to BT for signup
+app.post("/goBT", function (req, res){
+  //grab the form data
+  var merchantID = req.body.mid;
+  //redirect to Braintree
+  res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + merchantID);
+  
 });
 
 //handle grabbing the nonce from the client
