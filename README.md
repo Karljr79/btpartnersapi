@@ -5,11 +5,15 @@ This example node app was written to be run on Cloud9 `www.c9.io`
 
 You can clone this repository directly to your c9 instance by linking your GitHub account with your Cloud9 account.
 
+NOTE - TO USE THIS CODE YOU WILL NEED TO GET YOUR OWN BRAINTREE PARTNERS SANDBOX ACCOUNT.  THEN YOU CAN SUBSTITUTE YOUR CREDENTIALS IN.  YOU WILL ALSO NEED TO CHANGE THE REDIRECT URL.
+
 ##Running the App
 
-1) The credentials in line 31 of app.js are my partners account.
+1) The credentials in line 31 of app.js are my partners account. Enter yours here.
 
-2) These credentials come directly from Braintree.  You will need to contact Braintree to have Test Partner API credentials sent to you.  These credentials will not allow you to generate your
+2) The URL in the /goBT method of app.js will need to be replaced with your own.
+
+3) These credentials come directly from Braintree.  You will need to contact Braintree to have Test Partner API credentials sent to you.  These credentials will not allow you to generate your
 own client token, but are necessary for you to instantiate a Braintree Gateway capable of processing a partner_merchant_connected webhook. 
 
 ##Using the App
