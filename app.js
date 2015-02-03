@@ -84,7 +84,7 @@ app.get("/credentials", function (req, res) {
   winston.log('info', 'Braintree Challenge Webhook Received' );
 });
 
-//parse the webhook for partners API
+//parse the incoming webhook for partners API
 app.post('/credentials', function(req, res) {
   
   var partnerMerchantId, merchantPublicId, publicKey, privateKey;
@@ -126,6 +126,8 @@ app.post('/credentials', function(req, res) {
 });
 
 //simulate a user logging in from a mobile app
+//mid will be passed in as a query param.  
+//In the real world you would hook this up to your login handler
 app.get("/login", function(req,res){
     
     var merchant_id = req.query.id;
@@ -148,19 +150,26 @@ app.get("/login", function(req,res){
 });
 
 // Serve the Mobile iOS Client with the token generated above
+//his should only be called after the /login
 app.get("/client_token", function (req, res) {
+    
+    if(clientGateway) {
     clientGateway.clientToken.generate({
-    }, function (err, response) {
-      if(err){
-        winston.log('error', "Could not get client token");
-      }
-      else {
-        winston.log('info', "Recieved Client Token");
-        clientToken = response.clientToken;
-        winston.log('info', 'Clientoken is '+ clientToken);
-      }
-    });
-    res.send('{\"client_token\":\"'+clientToken+'\"}');
+      }, function (err, response) {
+        if(err){
+          winston.log('error', "Could not get client token");
+        }
+        else {
+          winston.log('info', "Recieved Client Token");
+          clientToken = response.clientToken;
+          winston.log('info', 'Clientoken is '+ clientToken);
+        }
+      });
+      res.send('{\"client_token\":\"'+clientToken+'\"}');
+    }
+    else {
+      res.redirect('/error' + '?partner_merchant_id=none&message=You are not logged in, please call /login first with your merchant id');
+    }
 });
 
 //redirect to BT for signup
@@ -173,6 +182,7 @@ app.post("/goBT", function (req, res){
 });
 
 //handle grabbing the nonce from the client
+//TODO
 app.post("/purchases", function (req, res){
   var nonce = req.body.payment_method_nonce;
 });
