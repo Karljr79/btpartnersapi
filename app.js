@@ -144,9 +144,9 @@ app.get("/login", function(req,res){
         publicKey: doc.public_key,
         privateKey: doc.private_key
         });
+        res.send('{\"status\":\"success\"}');
       }
     });
-    res.send(200);
 });
 
 // Serve the Mobile iOS Client with the token generated above
@@ -163,9 +163,9 @@ app.get("/client_token", function (req, res) {
           winston.log('info', "Recieved Client Token");
           clientToken = response.clientToken;
           winston.log('info', 'Clientoken is '+ clientToken);
+          res.send('{\"client_token\":\"'+clientToken+'\"}');
         }
       });
-      res.send('{\"client_token\":\"'+clientToken+'\"}');
     }
     else {
       res.redirect('/error' + '?partner_merchant_id=none&message=You are not logged in, please call /login first with your merchant id');

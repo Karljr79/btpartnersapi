@@ -44,7 +44,7 @@ as the key.
 
 3)If you receive a `200` response, you can proceed to calling the `/client_token` endpoint. 
 
-4)The response backj to your moble app will have that token in the response body which you can then parse out.
+4)The response back to your moble app will have that token in the response body which you can then parse out.
 
 
 
