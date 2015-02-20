@@ -8,6 +8,9 @@ var bodyParser = require("body-parser");
 var nStore = require('nstore');
 var winston = require('winston');
 
+//includes
+var config = require('./include/config');
+
 
 //setup payment variables
 var  clientToken, transid, expirationDate1, number1, paymenttoken;
@@ -17,9 +20,10 @@ var  clientToken, transid, expirationDate1, number1, paymenttoken;
 var clientGateway;
 
 //finish setting up logging
+//using multiple files for different log levels
 winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
 
-var partner_merchant_id = "abc37";
+var partner_merchant_id = "";
 
 //load db
 var merchants = nStore.new('data/merchants.db', function (){
@@ -30,9 +34,9 @@ var merchants = nStore.new('data/merchants.db', function (){
 //these are emailed from BT Solutions
 var gateway = braintree.connect({
   environment: braintree.Environment.Sandbox,
-  merchantId: "pp_karlh",
-  publicKey: "zdx75x7nh4zkxtbf",
-  privateKey: "63e4830c585ad9c7a6ac941909cb9c7d"
+  merchantId: config.merchantId,
+  publicKey: config.publicKey,
+  privateKey: config.privateKey
 });
 
 
@@ -53,7 +57,6 @@ app.get('/', function(req, res) {
 });
 
 app.get('/signup', function(req, res) {
-    //res.redirect("https://sandbox.braintreegateway.com/partners/pp_karlh/connect?partner_merchant_id=" + partner_merchant_id);
     res.render('pages/signup');
 });
 
@@ -89,7 +92,7 @@ app.post('/credentials', function(req, res) {
   
   var partnerMerchantId, merchantPublicId, publicKey, privateKey;
   
-  //parse webhook
+  //parse webhooks
   gateway.webhookNotification.parse(
     req.body.bt_signature,
     req.body.bt_payload,
@@ -144,6 +147,7 @@ app.get("/login", function(req,res){
         publicKey: doc.public_key,
         privateKey: doc.private_key
         });
+        partner_merchant_id = merchant_id;
         res.send('{\"status\":\"success\"}');
       }
     });
@@ -181,10 +185,38 @@ app.post("/goBT", function (req, res){
   
 });
 
-//handle grabbing the nonce from the client
-//TODO
-app.post("/purchases", function (req, res){
-  var nonce = req.body.payment_method_nonce;
+//handle grabbing the nonce from the client and creating a payment
+app.post("/payment", function (req, res){
+  var nonce = req.body["payment-method-nonce"];
+  var amount = req.body.amount;
+  var vault = req.body.vault;
+  
+  if (vault == "no")
+  {
+      clientGateway.transaction.sale({
+        amount: amount,
+        paymentMethodNonce: nonce,
+      }, function (err, result) {
+        console.log("new sale arriving");
+        if (err) throw err;
+
+        if (result.success) {
+          transid = result.transaction.id;
+          
+          winston.log('info', 'Transaction ID: ' + transid);
+          res.send('{\"transactionID\":\"'+transid+'\"}');
+        } else {
+          winston.log('error', result.message);
+          res.send(500);
+        }
+      });
+  }
+  else //TODO add handling for saving to the vault.
+  {
+    
+  }
+  
+  
 });
 
 /// catch 404 and forwarding to error handler
@@ -214,7 +246,7 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('pages/error', {
         message: err.message,
-        error: {}
+        error: err
     });
 });
 
