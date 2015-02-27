@@ -142,10 +142,10 @@ app.get("/login", function(req,res){
       else{
         //populate the client gateway
         clientGateway = braintree.connect({
-        environment: braintree.Environment.Sandbox,
-        merchantId: doc.merchant_public_id,
-        publicKey: doc.public_key,
-        privateKey: doc.private_key
+          environment: braintree.Environment.Sandbox,
+          merchantId: doc.merchant_public_id,
+          publicKey: doc.public_key,
+          privateKey: doc.private_key
         });
         partner_merchant_id = merchant_id;
         res.send('{\"status\":\"success\"}');
@@ -202,9 +202,9 @@ app.post("/payment", function (req, res){
 
         if (result.success) {
           transid = result.transaction.id;
-          
           winston.log('info', 'Transaction ID: ' + transid);
           res.send('{\"transactionID\":\"'+transid+'\"}');
+          res.end();
         } else {
           winston.log('error', result.message);
           res.send(500);
